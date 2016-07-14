@@ -1,0 +1,2 @@
+git log --> used to get the available logged Commits
+git diff --> used to get the difference between two Commits by giving the Commit ID
