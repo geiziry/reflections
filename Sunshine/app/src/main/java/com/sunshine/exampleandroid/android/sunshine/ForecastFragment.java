@@ -1,9 +1,12 @@
 package com.sunshine.exampleandroid.android.sunshine;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.IntegerRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -53,16 +56,9 @@ public class ForecastFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_activity, container, false);
 
 
-        ArrayList<String> WeatherData = new ArrayList<String>();
-        WeatherData.add("Today-Sunny-88/63");
-        WeatherData.add("Tommorrow-Foggy-70/46");
-        WeatherData.add("Weds-Cloudy-72/63");
-        WeatherData.add("Thurs-Rainy-88/63");
-        WeatherData.add("Fri-Foggy-88/63");
-        WeatherData.add("Sat-Sunny-88/63");
-
         listAdapter =
-                new ArrayAdapter<String>(getActivity(), R.layout.list_item_forecast, R.id.list_item_forecast_textview, WeatherData);
+                new ArrayAdapter<String>(getActivity(), R.layout.list_item_forecast,
+                        R.id.list_item_forecast_textview, new ArrayList<String>());
 
         list = (ListView) rootView.findViewById(R.id.listview_forecast);
 
@@ -77,9 +73,9 @@ public class ForecastFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
-
-             Toast bread= Toast.makeText(getContext(),listAdapter.getItem(position),Toast.LENGTH_LONG);
-                bread.show();
+                String result=listAdapter.getItem(position);
+                startActivity(new Intent(getActivity(),DetailActivity.class)
+                        .putExtra("Selecteditem", result));
             }
         });
 
@@ -99,17 +95,28 @@ public class ForecastFragment extends Fragment {
 
         int id=item.getItemId();
         if (id==R.id.action_refresh){
-//            if (ContextCompat.checkSelfPermission(getActivity(),android.Manifest.permission.INTERNET)
-//                    != PackageManager.PERMISSION_GRANTED) {
-//                requestPermissions(new String[]{android.Manifest.permission.INTERNET},
-//                        8);
-//
-//            }
-            FetchWeatherTask weatherTask=new FetchWeatherTask();
-            weatherTask.execute("94043");
+            updateWeather();
             return  true;}
-
+        else if(id==R.id.action_settings)
+        {
+            startActivity(new Intent(getActivity(),SettingsActivity.class));
+        }
      return super.onOptionsItemSelected(item);
+    }
+
+    private void updateWeather() {
+        FetchWeatherTask weatherTask=new FetchWeatherTask();
+        SharedPreferences preferences= PreferenceManager
+                .getDefaultSharedPreferences(getActivity());
+        String loc=preferences.getString(getString(R.string.pref_location_key),
+                getString(R.string.pref_location_default));
+        weatherTask.execute(loc);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
     }
 
     @Override
