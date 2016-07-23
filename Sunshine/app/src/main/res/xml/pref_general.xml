@@ -9,7 +9,6 @@
 
     <ListPreference
         android:title="Units"
-        android:summary="Select Temperature Unit"
         android:key="units"
         android:entries="@array/Units"
         android:defaultValue="1"

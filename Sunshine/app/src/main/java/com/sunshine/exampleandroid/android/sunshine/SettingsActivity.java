@@ -11,6 +11,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -26,7 +27,7 @@ import android.widget.Button;
 
 import java.util.List;
 
-public class SettingsActivity extends PreferenceActivity //implements Preference.OnPreferenceChangeListener {
+public class SettingsActivity extends PreferenceActivity
 {
 
 
@@ -40,11 +41,38 @@ public class SettingsActivity extends PreferenceActivity //implements Preference
 
 
 
-    public static class SettingsFragment extends PreferenceFragment{
+    public static class SettingsFragment extends PreferenceFragment implements
+            SharedPreferences.OnSharedPreferenceChangeListener{
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+
             addPreferencesFromResource(R.xml.pref_general);
+        }
+
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            getPreferenceScreen().getSharedPreferences()
+                    .registerOnSharedPreferenceChangeListener(this);
+        }
+
+
+
+
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            Preference pref=findPreference(key);
+
+            if (pref instanceof ListPreference){
+                ListPreference listPreference=(ListPreference)pref;
+                pref.setSummary(listPreference.getEntry());
+            }
+            if (pref instanceof EditTextPreference){
+                EditTextPreference editTextPreference=(EditTextPreference)pref;
+                pref.setSummary(editTextPreference.getText());
+            }
         }
     }
 }
