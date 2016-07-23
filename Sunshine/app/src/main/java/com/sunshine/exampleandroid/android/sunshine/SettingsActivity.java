@@ -41,8 +41,7 @@ public class SettingsActivity extends PreferenceActivity
 
 
 
-    public static class SettingsFragment extends PreferenceFragment implements
-            SharedPreferences.OnSharedPreferenceChangeListener{
+    public static class SettingsFragment extends PreferenceFragment implements Preference.OnPreferenceChangeListener{
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -54,25 +53,40 @@ public class SettingsActivity extends PreferenceActivity
         @Override
         public void onResume() {
             super.onResume();
-            getPreferenceScreen().getSharedPreferences()
-                    .registerOnSharedPreferenceChangeListener(this);
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_location_key)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_units_key)));
+
         }
 
+        private void bindPreferenceSummaryToValue(Preference preference) {
+            // Set the listener to watch for value changes.
+            preference.setOnPreferenceChangeListener(this);
 
-
+            // Trigger the listener immediately with the preference's
+            // current value.
+            onPreferenceChange(preference,
+                    PreferenceManager
+                            .getDefaultSharedPreferences(preference.getContext())
+                            .getString(preference.getKey(), ""));
+        }
 
         @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            Preference pref=findPreference(key);
+        public boolean onPreferenceChange(Preference preference, Object value) {
+            String stringValue = value.toString();
 
-            if (pref instanceof ListPreference){
-                ListPreference listPreference=(ListPreference)pref;
-                pref.setSummary(listPreference.getEntry());
+            if (preference instanceof ListPreference) {
+                // For list preferences, look up the correct display value in
+                // the preference's 'entries' list (since they have separate labels/values).
+                ListPreference listPreference = (ListPreference) preference;
+                int prefIndex = listPreference.findIndexOfValue(stringValue);
+                if (prefIndex >= 0) {
+                    preference.setSummary(listPreference.getEntries()[prefIndex]);
+                }
+            } else {
+                // For other preferences, set the summary to the value's simple string representation.
+                preference.setSummary(stringValue);
             }
-            if (pref instanceof EditTextPreference){
-                EditTextPreference editTextPreference=(EditTextPreference)pref;
-                pref.setSummary(editTextPreference.getText());
-            }
+            return true;
         }
     }
 }
