@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="prefs_path">QuranAndroid_Settings</string>
+    <string name="prefs_display_category_key">displayCategoryKey</string>
+</resources>

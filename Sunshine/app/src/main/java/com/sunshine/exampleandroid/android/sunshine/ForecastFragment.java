@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ShareActionProvider;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -87,6 +88,8 @@ public class ForecastFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
         inflater.inflate(R.menu.forecastfragment,menu);
+
+
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -325,5 +328,6 @@ public class ForecastFragment extends Fragment {
 
         }
     }
+
 
 }

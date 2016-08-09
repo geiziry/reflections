@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="verses" >
+        <item quantity="one">One verse</item>
+        <item quantity="other">%s verses</item>
+    </plurals>
+</resources>

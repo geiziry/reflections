@@ -1,0 +1,100 @@
+package com.quran.android.quranandroidlearning.ui.fragment;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.res.Resources;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import com.quran.android.quranandroidlearning.R;
+import com.quran.android.quranandroidlearning.data.QuranInfo;
+import com.quran.android.quranandroidlearning.ui.SuraListFragment;
+import com.quran.android.quranandroidlearning.ui.helpers.QuranListAdapter;
+import com.quran.android.quranandroidlearning.ui.helpers.QuranRow;
+import com.quran.android.quranandroidlearning.data.Constants;
+import com.quran.android.quranandroidlearning.util.QuranUtils;
+import com.quran.android.quranandroidlearning.widgets.JuzView;
+
+/**
+ * Created by HP_Spectre on 7/31/2016.
+ */
+public class JuzListFragment extends Fragment {
+
+     private RecyclerView mRecyclerView;
+    private static int[] sEntryTypes={
+            JuzView.TYPE_JUZ,JuzView.TYPE_QUARTER,
+            JuzView.TYPE_HALF,JuzView.TYPE_THREE_QUARTERS
+    };
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.quran_list, container, false);
+
+        final Context context = getActivity();
+
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        final QuranListAdapter adapter =
+                new QuranListAdapter(context, mRecyclerView, getJuz2List(), true);
+        mRecyclerView.setAdapter(adapter);
+        return view;
+    }
+
+    public QuranRow[] getJuz2List() {
+        Activity activity = getActivity();
+        Resources res = getResources();
+        String[] quarters = res.getStringArray(R.array.quarter_prefix_array);
+        QuranRow[] elements = new QuranRow[Constants.JUZ2_COUNT * (8 + 1)];
+
+        int ctr = 0;
+        for (int i = 0; i < (8 * Constants.JUZ2_COUNT); i++) {
+            int[] pos = QuranInfo.QUARTERS[i];
+            int page = QuranInfo.getPageFromSuraAyah(pos[0], pos[1]);
+
+            if (i % 8 == 0) {
+                int juz = 1 + (i / 8);
+                final String juzTitle = activity.getString(R.string.juz2_description,
+                        QuranUtils.getLocalizedNumber(activity, juz));
+
+                final QuranRow.Builder builder = new QuranRow.Builder()
+                        .withType(QuranRow.HEADER)
+                        .withText(juzTitle)
+                        .withPage(QuranInfo.JUZ_PAGE_START[juz - 1]);
+                elements[ctr++] = builder.build();
+            }
+
+            final String verseString = getString(R.string.quran_ayah, pos[1]);
+            final String metadata =
+                    QuranInfo.getSuraName(activity, pos[0], true) + ", " + verseString;
+            final QuranRow.Builder builder = new QuranRow.Builder()
+                    .withText(quarters[i])
+                    .withMetadata(metadata)
+                    .withPage(page)
+                    .withJuzType(sEntryTypes[i % 4]);
+
+            if (i % 4 == 0) {
+                final String overlayText =
+                        QuranUtils.getLocalizedNumber(activity, 1 + (i / 4));
+                builder.withJuzOverlayText(overlayText);
+            }
+            elements[ctr++] = builder.build();
+        }
+        return elements;
+    }
+
+    public static SuraListFragment newInstance() {
+        return new SuraListFragment();
+    }
+
+}
